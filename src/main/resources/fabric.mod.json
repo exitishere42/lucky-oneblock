@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "id": "luckyoneblock",
+  "version": "${version}",
+  "name": "Lucky OneBlock",
+  "description": "Infinite Lucky Block OneBlock mode. Keep mining without ever falling into the void!",
+  "authors": [
+    "exit"
+  ],
+  "contact": {
+    "homepage": "https://github.com/exitishere42"
+  },
+  "license": "MIT",
+  "icon": "assets/luckyoneblock/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "de.exit.luckyoneblock.LuckyOneBlockMod"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.16.0",
+    "minecraft": ">=1.21",
+    "java": ">=21",
+    "fabric-api": "*",
+    "simple_lucky_block": "*"
+  }
+}
