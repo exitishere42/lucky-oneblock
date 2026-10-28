@@ -18,7 +18,6 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import java.lang.reflect.Field;
@@ -83,22 +82,22 @@ public final class OneBlockManager {
 
                     PlayerEntity target = world.getClosestPlayer(item.getX(), item.getY(), item.getZ(), 12.0, false);
                     if (target != null && !target.isSpectator()) {
-                        Vec3d targetPos = target.getEyePos().subtract(0, 0.3, 0);
-                        Vec3d dir = targetPos.subtract(item.getPos());
-                        double dist = dir.length();
+                        double dx = target.getX() - item.getX();
+                        double dy = (target.getY() + 0.6) - item.getY();
+                        double dz = target.getZ() - item.getZ();
+                        double distSq = dx * dx + dy * dy + dz * dz;
 
-                        if (dist < 1.6) {
-                            item.onPlayerCollision(target);
-                        } else {
-                            // Starker, geschmeidiger Sog zum Spieler
-                            item.setVelocity(dir.normalize().multiply(0.45));
+                        if (distSq > 0.01) {
+                            double dist = Math.sqrt(distSq);
+                            double speed = 0.45;
+                            item.setVelocity(dx / dist * speed, dy / dist * speed, dz / dist * speed);
                         }
                     } else {
-                        // Falls kein Spieler direkt da ist: Items über dem Block halten
-                        Vec3d center = new Vec3d(0.5, 65.2, 0.5);
-                        Vec3d toCenter = center.subtract(item.getPos());
-                        if (toCenter.lengthSquared() > 0.3) {
-                            item.setVelocity(toCenter.normalize().multiply(0.2));
+                        // Falls kein Spieler da: Items über dem Block halten
+                        double dx = 0.5 - item.getX();
+                        double dz = 0.5 - item.getZ();
+                        if (dx * dx + dz * dz > 0.3) {
+                            item.setVelocity(dx * 0.3, 0.05, dz * 0.3);
                         }
                     }
                 }
@@ -111,8 +110,15 @@ public final class OneBlockManager {
                     }
                     PlayerEntity target = world.getClosestPlayer(orb.getX(), orb.getY(), orb.getZ(), 12.0, false);
                     if (target != null && !target.isSpectator()) {
-                        Vec3d dir = target.getEyePos().subtract(orb.getPos());
-                        orb.setVelocity(dir.normalize().multiply(0.45));
+                        double dx = target.getX() - orb.getX();
+                        double dy = (target.getY() + 0.6) - orb.getY();
+                        double dz = target.getZ() - orb.getZ();
+                        double distSq = dx * dx + dy * dy + dz * dz;
+                        if (distSq > 0.01) {
+                            double dist = Math.sqrt(distSq);
+                            double speed = 0.45;
+                            orb.setVelocity(dx / dist * speed, dy / dist * speed, dz / dist * speed);
+                        }
                     }
                 }
             }
