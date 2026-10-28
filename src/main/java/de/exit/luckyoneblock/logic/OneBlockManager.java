@@ -8,20 +8,19 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.registry.Registries;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
+import java.lang.reflect.Field;
 import java.util.Set;
 
 public final class OneBlockManager {
     public static final BlockPos ONE_BLOCK_POS = new BlockPos(0, 64, 0);
-    public static final Identifier LUCKY_BLOCK_ID = Identifier.of("simple_lucky_block", "lucky_block");
+    private static BlockState cachedLuckyState = null;
 
     private OneBlockManager() {}
 
@@ -83,8 +82,19 @@ public final class OneBlockManager {
     }
 
     public static BlockState getLuckyBlockState() {
-        if (Registries.BLOCK.containsId(LUCKY_BLOCK_ID)) {
-            return Registries.BLOCK.get(LUCKY_BLOCK_ID).getDefaultState();
+        if (cachedLuckyState != null) {
+            return cachedLuckyState;
+        }
+        try {
+            Class<?> clazz = Class.forName("com.simpleluckyblock.ModBlocks");
+            Field field = clazz.getField("LUCKY_BLOCK");
+            Block block = (Block) field.get(null);
+            if (block != null) {
+                cachedLuckyState = block.getDefaultState();
+                return cachedLuckyState;
+            }
+        } catch (Throwable t) {
+            LuckyOneBlockMod.LOGGER.warn("[LuckyOneBlock] Could not load ModBlocks.LUCKY_BLOCK: {}", t.getMessage());
         }
         return Blocks.GOLD_BLOCK.getDefaultState();
     }
